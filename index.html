@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Employees - List</title>
+  <style>body{font-family:Arial;padding:20px} table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px}a.button{padding:6px 10px;background:#1976d2;color:#fff;text-decoration:none;border-radius:4px}</style>
+</head>
+<body>
+  <h1>Employees</h1>
+  <div>
+    <input id="searchName" placeholder="Search name"/>
+    <input id="searchDept" placeholder="Search department"/>
+    <button id="btnSearch">Search</button>
+    <button id="btnReset">Reset</button>
+    <a class="button" href="form.html">+ Add New</a>
+  </div>
+  <br/>
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Department</th><th>Email</th><th>Actions</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <script>
+    const apiRoot = ''; // same origin
+    async function loadAll(){
+      const res = await fetch(apiRoot + '/Get');
+      const data = await res.json();
+      render(data);
+    }
+    function render(list){
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      list.forEach(e=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${e.employeeId}</td>
+                        <td>${e.name}</td>
+                        <td>${e.department}</td>
+                        <td>${e.email}</td>
+                        <td>
+                          <a href="employee.html?id=${encodeURIComponent(e.employeeId)}">View</a> |
+                          <a href="form.html?id=${encodeURIComponent(e.employeeId)}">Edit</a> |
+                          <a href="#" onclick="del('${e.employeeId}')">Delete</a>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function del(id){
+      if(!confirm('Delete '+id+'?')) return;
+      const r = await fetch('/employees/' + encodeURIComponent(id), { method: 'DELETE' });
+      if (r.ok) { alert('Deleted'); loadAll(); }
+      else { const j = await r.json(); alert('Error: ' + (j?.message || r.statusText)); }
+    }
+
+    document.getElementById('btnSearch').addEventListener('click', async ()=>{
+      const name = document.getElementById('searchName').value;
+      const dept = document.getElementById('searchDept').value;
+      const q = new URLSearchParams();
+      if(name) q.append('name', name);
+      if(dept) q.append('department', dept);
+      const res = await fetch('/Get/employees/search?' + q.toString());
+      const data = await res.json();
+      render(data);
+    });
+    document.getElementById('btnReset').addEventListener('click', ()=>{ document.getElementById('searchName').value=''; document.getElementById('searchDept').value=''; loadAll(); });
+
+    // initial
+    loadAll();
+  </script>
+</body>
+</html>

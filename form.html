@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"/><title>Employee Form</title></head>
+<body>
+  <a href="index.html">← Back</a>
+  <h1 id="title">Add Employee</h1>
+  <form id="f">
+    <label>EmployeeId: <input id="employeeId" name="employeeId"/></label><br/>
+    <label>Name: <input id="name" name="name"/></label><br/>
+    <label>Address: <input id="address" name="address"/></label><br/>
+    <label>Department: <input id="department" name="department"/></label><br/>
+    <label>Email: <input id="email" name="email"/></label><br/>
+    <button type="submit">Save</button>
+  </form>
+<script>
+  document.getElementById('f').addEventListener('submit', async (ev)=>{
+    ev.preventDefault();
+    const payload = {
+      employeeId: document.getElementById('employeeId').value.trim(),
+      name: document.getElementById('name').value.trim(),
+      address: document.getElementById('address').value.trim(),
+      department: document.getElementById('department').value.trim(),
+      email: document.getElementById('email').value.trim()
+    };
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if (id) {
+      const r = await fetch('/employees/' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (r.ok) { alert('Updated'); location.href='index.html'; }
+      else { const j = await r.json(); alert('Error: '+(j?.message||r.statusText)); }
+    } else {
+      const r = await fetch('/employees', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (r.status === 201) { alert('Created'); location.href='index.html'; }
+      else { const j = await r.json(); alert('Error: '+(j?.message||r.statusText)); }
+    }
+  });
+
+  (async function init(){
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if(!id) return;
+    document.getElementById('title').innerText = 'Edit Employee';
+    document.getElementById('employeeId').disabled = true;
+    const r = await fetch('/Get/' + encodeURIComponent(id));
+    if(!r.ok) { alert('Not found'); location.href='index.html'; return; }
+    const e = await r.json();
+    document.getElementById('employeeId').value = e.employeeId;
+    document.getElementById('name').value = e.name;
+    document.getElementById('address').value = e.address;
+    document.getElementById('department').value = e.department;
+    document.getElementById('email').value = e.email;
+  })();
+</script>
+</body>
+</html>

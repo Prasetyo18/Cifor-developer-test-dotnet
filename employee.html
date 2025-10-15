@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"/><title>Employee Detail</title></head>
+<body>
+  <a href="index.html">← Back</a>
+  <h1>Employee Detail</h1>
+  <div id="content"></div>
+<script>
+  async function load(){
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if(!id) { document.getElementById('content').innerText = 'No id provided'; return; }
+    const r = await fetch('/Get/' + encodeURIComponent(id));
+    if (!r.ok) { document.getElementById('content').innerText = 'Not found'; return;}
+    const e = await r.json();
+    document.getElementById('content').innerHTML = `<p><b>ID:</b> ${e.employeeId}</p>
+      <p><b>Name:</b> ${e.name}</p>
+      <p><b>Address:</b> ${e.address}</p>
+      <p><b>Department:</b> ${e.department}</p>
+      <p><b>Email:</b> ${e.email}</p>
+      <p><a href="form.html?id=${encodeURIComponent(e.employeeId)}">Edit</a></p>`;
+  }
+  load();
+</script>
+</body>
+</html>
