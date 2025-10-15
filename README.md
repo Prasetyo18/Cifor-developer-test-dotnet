@@ -1,4 +1,4 @@
-# CIFOR Developer Test (ASP.NET Core + Static Frontend)
+# CIFOR Developer Test 
 The app is configured to serve on `http://localhost:5000`.
 Open `http://localhost:5000` in your browser. The static frontend is at `/index.html` (served automatically) and talks to the API endpoints:
 - `GET /Get` - list employees
